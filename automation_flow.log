@@ -1,0 +1,9 @@
+2026-02-10 21:38:30,064 | tests.ui_element_action_wrapper | INFO     | Attempting click on: Get It Today (Selector: role=link[name="Apply the filter Get It Today to narrow results"])
+2026-02-10 21:38:33,485 | tests.test_amazon_shopping | INFO     | Get It Today button successfully clicked
+2026-02-10 21:38:36,819 | tests.test_amazon_shopping | INFO     | Up to lowest price button successfully clicked
+2026-02-10 21:38:48,700 | tests.test_amazon_shopping | INFO     | Quantity 2 chosen
+2026-02-10 21:38:52,637 | tests.test_amazon_shopping | INFO     | Add to cart button clicked
+2026-02-10 21:38:57,017 | tests.test_amazon_shopping | INFO     | View cart button successfully clicked
+2026-02-10 21:39:00,167 | tests.test_amazon_shopping | INFO     | Quantity decreased by 1
+2026-02-10 21:39:03,532 | tests.test_amazon_shopping | INFO     | Delete button clicked
+2026-02-10 21:39:07,047 | tests.test_amazon_shopping | INFO     | Back to home page
