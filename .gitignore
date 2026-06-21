@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+.installed.cfg
+*.log
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.mypy_cache/
+.pytype/
+.ipynb_checkpoints/
+.vscode/
+.idea/
