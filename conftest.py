@@ -37,6 +37,8 @@ def browser_context_args(browser_context_args):
     
     Disables viewport constraints so Playwright doesn't force a 1280x720 window.
     This allows the test to work with the actual maximized window dimensions.
+    Without this, the window may be maximised but the page would still render as if 
+    it were still in a small viewport. 
     
     Args:
         browser_context_args: Default Playwright browser context arguments
@@ -44,6 +46,10 @@ def browser_context_args(browser_context_args):
     Returns:
         dict: Updated context arguments with no_viewport set to True
     """
+    return {
+        **browser_context_args,
+        "no_viewport": True
+    }
 
 
 @pytest.fixture

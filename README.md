@@ -25,40 +25,50 @@ This project provides a self-healing utility for Playwright-based UI automation 
     ```
 
 3.  **Install dependencies:**
+
+    There is no `requirements.txt` in this repo yet, so install the packages directly:
     ```bash
-    pip install -r requirements.txt
-    # (You might need to create a requirements.txt file with playwright and any other dependencies)
-    ```
-    *Note: If `requirements.txt` does not exist, you will need to install Playwright and other necessary packages manually.*
-    ```bash
-    pip install playwright
+    pip install pytest pytest-playwright ollama
     playwright install
     ```
+    *Note: `ollama` is the Python client used by `tests/ai_utils.py` to call a locally running Ollama server for selector healing. You also need the [Ollama app](https://ollama.com) installed and the `qwen2.5-coder:7b` model pulled (`ollama pull qwen2.5-coder:7b`) for self-healing to work.*
 
 ## Usage
 
-To use the self-healing utility in your Playwright tests, you will typically import the `UIElementActionWrapper` and use its methods to interact with UI elements.
+To use the self-healing utility in your Playwright tests, call the `smart_click()` function from `tests/ui_element_action_wrapper.py` in place of a plain `locator().click()`. It tries the given selector first and, if that times out, asks the local Ollama model to suggest a corrected selector from the surrounding HTML and retries with that.
 
 ### Example (tests/test_amazon_shopping.py):
 
 ```python
-# ...existing code...
-from tests.ui_element_action_wrapper import UIElementActionWrapper
+from tests.ui_element_action_wrapper import smart_click
 
 def test_amazon_search(page):
-    wrapper = UIElementActionWrapper(page)
-    wrapper.goto("https://www.amazon.com")
-    wrapper.fill("#twotabsearchtextbox", "Playwright book")
-    wrapper.press("#twotabsearchtextbox", "Enter")
-    # Further assertions or actions using the wrapper
-# ...existing code...
+    page.goto("https://www.amazon.in/")
+    smart_click(page, 'role=link[name="Apply the filter Get It Today to narrow results"]', "Get It Today")
+    # Falls back to an AI-healed selector automatically if the one above stops matching
 ```
+
+Run the suite with:
+```bash
+pytest
+```
+
+### Page Object Model (`pages/`)
+
+UI interactions are organized as page objects rather than being written inline in the tests. `pages/base_page.py` defines a `BasePage` with the shared `smart_click()` helper and a `expect_primary_nav_visible()` check used across pages; the other classes subclass it and represent one screen each. Methods that navigate return the next page object, so a test reads as a chain, e.g. `home_page.search(...)` → `SearchResultsPage` → `open_first_product()` → `ProductPage` → `go_to_cart()` → `CartPage`.
 
 ## Project Structure
 
 ```
 .gitignore
 conftest.py
+pages/
+    __init__.py
+    base_page.py
+    home_page.py
+    search_results_page.py
+    product_page.py
+    cart_page.py
 tests/
     __init__.py
     ai_utils.py
@@ -66,10 +76,15 @@ tests/
     ui_element_action_wrapper.py
 ```
 
--   `conftest.py`: pytest configuration and fixtures.
--   `tests/ai_utils.py`: Contains AI-related logic for self-healing.
--   `tests/ui_element_action_wrapper.py`: Wraps Playwright actions with self-healing capabilities.
--   `tests/test_amazon_shopping.py`: Example Playwright test demonstrating the utility.
+-   `conftest.py`: pytest configuration and fixtures (browser launch/context args, `setup` fixture, logging).
+-   `pages/base_page.py`: Shared base class for all page objects (`smart_click` helper, nav-visibility check).
+-   `pages/home_page.py`: Homepage — popup dismissal, search.
+-   `pages/search_results_page.py`: Search results — filters, opening a product.
+-   `pages/product_page.py`: Product detail page — quantity, add to cart, go to cart.
+-   `pages/cart_page.py`: Cart page — quantity adjustment, delete item, return home.
+-   `tests/ai_utils.py`: Contains AI-related logic (Ollama calls) for self-healing.
+-   `tests/ui_element_action_wrapper.py`: Wraps Playwright clicks with self-healing capabilities (`smart_click`).
+-   `tests/test_amazon_shopping.py`: End-to-end Amazon.in shopping test built on the `pages/` POM classes.
 
 ## Contributing
 
